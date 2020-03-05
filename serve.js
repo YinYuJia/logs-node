@@ -18,7 +18,7 @@ let secret = 'I_LOVE_JING';
 let token = jwt.sign(payload, secret, {
   expiresIn: 60 * 60 * 24
 }); // 授权时效24小时})//此方法会生成一个token，第一个参数是数据，第二个参数是签名,第三个参数是token的过期时间可以不设置
-console.log("------------", token)
+console.log("------token------", token)
 
 
 var path = require("path")
@@ -33,13 +33,10 @@ var requestUrl = "192.168.0.104"
 app.use('/uploads', express.static('./uploads'));
 
 app.get('/uploads/*', function (req, res) {
-  console.log("{{{{{{{{{{{{{{" + __dirname + "/" + req.url + "]]]]]]]]]]]]]]]]]]");
   res.sendFile(__dirname + "/" + req.url);
 })
 
-
 var mysql = require('mysql');
-
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -55,7 +52,6 @@ app.post('/login', function (req, res) {
   res.writeHead(200, {
     "Content-Type": "text/html;charset=utf-8"
   })
-  console.log("1111111113333333331111111", req.body)
   var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -65,7 +61,6 @@ app.post('/login', function (req, res) {
   connection.connect();
   connection.query('select * from person_list', function (error, results, fields) {
     if (error) throw error;
-    console.log('-----------', results);
     var temp = false
     for (var i = 0; i < results.length; i++) {
       if (req.body.username == results[i].username && req.body.password == results[i].password) {
@@ -74,7 +69,6 @@ app.post('/login', function (req, res) {
     }
     if (temp) {
       var data = fs.readFileSync('./static/奇迹.txt');
-      console.log("同步读取]开始---------------------: \n" + data.toString() + "\n" + "同步读取结束-----------------:");
       res.end(JSON.stringify({
         code: 0,
         msg: "登录成功",
@@ -97,8 +91,6 @@ app.post('/list', function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
-
-  console.log("--------", req.body);
   var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -112,7 +104,6 @@ app.post('/list', function (req, res) {
     if (err) {
       return;
     }
-    console.log("数据库返回list----", result)
     res.end(JSON.stringify({
       code: "0",
       msg: "添加成功",
@@ -120,8 +111,6 @@ app.post('/list', function (req, res) {
       total: result.length
     }));
   });
-
-
 })
 
 // 列表
@@ -129,8 +118,6 @@ app.post('/query', function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
-
-  console.log("--------", req.body);
   var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -153,7 +140,6 @@ app.post('/query', function (req, res) {
     } else {
       let temp = [];
       for (let i = 0; i < result.length; i++) {
-        console.log("数据库返回list----", result[i].date.split(" ")[0])
         if (req.body.date == result[i].date.split(" ")[0]) {
           temp.push(result[i])
         }
@@ -175,7 +161,6 @@ app.post("/add", function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
-  console.log("----add----", req.body);
   var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -201,7 +186,6 @@ app.post("/updata", function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
-  console.log("--------", req.body);
   var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -218,14 +202,8 @@ app.post("/updata", function (req, res) {
 
   connection.query(modSql, addSqlParams, function (err, result) {
     if (err) {
-      console.log('[INSERT ERROR] - ', err.message);
       return;
     }
-
-    console.log('--------------------------INSERT----------------------------');
-    //console.log('INSERT ID:',result.insertId);        
-    console.log('INSERT ID:', result);
-    console.log('-----------------------------------------------------------------\n\n');
     res.end(JSON.stringify({
       code: "0",
       msg: "更新成功"
@@ -238,7 +216,6 @@ app.post("/deleteInfo", function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   }); //解决输出乱码问题
-  console.log("----前端传过来的值----", req.body);
   var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -249,10 +226,8 @@ app.post("/deleteInfo", function (req, res) {
   var addSql = 'delete from logs where id=' + req.body.id; //删除语句语句
   connection.query(addSql, function (err, result) {
     if (err) {
-      console.log('[INSERT ERROR] - ', err.message);
       return;
     }
-    console.log("--------", result)
     res.end(JSON.stringify({
       code: "0",
       msg: "删除成功"
@@ -263,11 +238,8 @@ app.post("/deleteInfo", function (req, res) {
 
 
 var server = app.listen(8888, function () {
-
   var host = server.address().address
-  console.log(server.address())
   var port = server.address().port
-
   console.log("应用实例，访问地址为 http://%s:%s", host, port)
 
 })
