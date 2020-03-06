@@ -13,10 +13,9 @@ class Jwt {
         let data = this.data;
         let created = Math.floor(Date.now() / 1000);
         let cert = "YINYUJIA"
-        console.log("到这里了")
         let token = jwt1.sign({
             data,
-            exp: created + 60 * 1, //设置过期时间
+            exp: created + 60 * 30, //设置过期时间
         }, cert );
         return token;
     }

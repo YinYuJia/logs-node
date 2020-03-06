@@ -59,6 +59,7 @@ app.use(function (req, res, next) {
   }
 })
 // 登录
+var login_id = ""
 app.post('/login', function (req, res) {
   res.writeHead(200, {
     "Content-Type": "text/html;charset=utf-8"
@@ -67,24 +68,23 @@ app.post('/login', function (req, res) {
     host: 'localhost',
     user: 'root',
     password: 'wobuzhidao123',
-    database: 'study'
+    database: 'mylog'
   });
   connection.connect();
-  connection.query('select * from person_list', function (error, results, fields) {
+  connection.query('select * from person', function (error, results, fields) {
     if (error) throw error;
     var temp = ''
     for (var i = 0; i < results.length; i++) {
       if (req.body.username == results[i].username && req.body.password == results[i].password) {
         temp = results[i].id
+        login_id = results[i].id
       }
     }
-    console.log("id000",temp)
+    console.log("id------",temp)
     let jwt = new JwtUtil(String(temp));
     const token = jwt.generateToken();
-    console.log(token)
     if (temp != '') {
       var data = fs.readFileSync('./static/奇迹.txt');
-      console.log(1111111)
       res.end(JSON.stringify({
         code: 0,
         msg: "登录成功",
@@ -99,7 +99,6 @@ app.post('/login', function (req, res) {
         msg: "用户名或密码错误"
       }));
     }
-
   });
 })
 
@@ -115,12 +114,14 @@ app.post('/list',function (req, res) {
     database: 'mylog'
   });
   connection.connect();
-  var addSql = 'SELECT * FROM logs'; //新增语句
+  console.log(234,login_id)
+  var addSql = "select * from logs where login_id =  "  + login_id; 
   var addSqlParams = [req.body.name, req.body.sex, req.body.age, req.body.idcard];
   connection.query(addSql, function (err, result) {
     if (err) {
       return;
     }
+    console.log("result------",result)
     res.end(JSON.stringify({
       code: "0",
       msg: "添加成功",
@@ -142,7 +143,7 @@ app.post('/query', verifyToken,function (req, res) {
     database: 'mylog'
   });
   connection.connect();
-  var addSql = 'SELECT * FROM logs'; //新增语句
+  var addSql = "select * from logs where login_id =  "  + login_id; 
   connection.query(addSql, function (err, result) {
     if (err) {
       return;
@@ -185,8 +186,8 @@ app.post("/add", verifyToken,function (req, res) {
     database: 'mylog'
   });
   connection.connect();
-  var addSql = 'INSERT INTO logs(title,content,date) VALUES(?,?,?)'; //新增语句
-  var addSqlParams = [req.body.title, req.body.content, req.body.date, ];
+  var addSql = 'INSERT INTO logs(title,content,date,login_id) VALUES(?,?,?,?)'; //新增语句
+  var addSqlParams = [req.body.title, req.body.content, req.body.date,login_id];
   connection.query(addSql, addSqlParams, function (err, result) {
     if (err) {
       return;
