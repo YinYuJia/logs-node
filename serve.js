@@ -10,17 +10,6 @@ app.use(bodyParser.urlencoded({
 
 const jwt = require('jsonwebtoken'); //生成token
 
-let payload = {
-  name: '张三',
-  admin: true
-};
-let secret = 'I_LOVE_JING';
-let token = jwt.sign(payload, secret, {
-  expiresIn: 60 * 60 * 24
-}); // 授权时效24小时})//此方法会生成一个token，第一个参数是数据，第二个参数是签名,第三个参数是token的过期时间可以不设置
-console.log("------token------", token)
-
-
 var path = require("path")
 var fs = require("fs");
 
@@ -47,6 +36,28 @@ const msgMan = require('./router/msgMan.js'); //路由信息列表
 app.use('/msgMan', msgMan) //路由信息列表
 
 
+const JwtUtil = require('./jwt');
+
+app.use(function (req, res, next) {
+  console.log("进来了")
+  // 我这里知识把登陆和注册请求去掉了，其他的多有请求都需要进行token校验 
+  if (req.url != '/login' && req.url != '/register') {
+      let token = req.headers.token;
+      let jwt = new JwtUtil(token);
+      let result = jwt.verifyToken();
+      // 如果考验通过就next，否则就返回登陆信息不正确
+      if (result == 'err') {
+          console.log(result);
+          res.send({status: 403, msg: '登录已过期,请重新登录'});
+          // res.render('login.html');
+      } else {
+        console.log("没过期")
+          next();
+      }
+  } else {
+      next();
+  }
+})
 // 登录
 app.post('/login', function (req, res) {
   res.writeHead(200, {
@@ -61,20 +72,26 @@ app.post('/login', function (req, res) {
   connection.connect();
   connection.query('select * from person_list', function (error, results, fields) {
     if (error) throw error;
-    var temp = false
+    var temp = ''
     for (var i = 0; i < results.length; i++) {
       if (req.body.username == results[i].username && req.body.password == results[i].password) {
-        temp = true
+        temp = results[i].id
       }
     }
-    if (temp) {
+    console.log("id000",temp)
+    let jwt = new JwtUtil(String(temp));
+    const token = jwt.generateToken();
+    console.log(token)
+    if (temp != '') {
       var data = fs.readFileSync('./static/奇迹.txt');
+      console.log(1111111)
       res.end(JSON.stringify({
         code: 0,
         msg: "登录成功",
         data: {
           text: data.toString()
-        }
+        },
+        token:token
       }));
     } else {
       res.end(JSON.stringify({
@@ -87,7 +104,7 @@ app.post('/login', function (req, res) {
 })
 
 // 列表
-app.post('/list', function (req, res) {
+app.post('/list',function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
@@ -114,7 +131,7 @@ app.post('/list', function (req, res) {
 })
 
 // 列表
-app.post('/query', function (req, res) {
+app.post('/query', verifyToken,function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
@@ -157,7 +174,7 @@ app.post('/query', function (req, res) {
 
 })
 //主要的部分end
-app.post("/add", function (req, res) {
+app.post("/add", verifyToken,function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
@@ -182,7 +199,7 @@ app.post("/add", function (req, res) {
 })
 
 //主要的部分end
-app.post("/updata", function (req, res) {
+app.post("/updata",verifyToken, function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
@@ -212,7 +229,7 @@ app.post("/updata", function (req, res) {
 
 })
 //主要的部分end
-app.post("/deleteInfo", function (req, res) {
+app.post("/deleteInfo",verifyToken,function (req, res) {
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8'
   }); //解决输出乱码问题
@@ -235,6 +252,22 @@ app.post("/deleteInfo", function (req, res) {
   });
 
 })
+//验证token是否过期
+function verifyToken(req, res, next) {
+  
+  const token = req.headers['token'];
+  if(typeof token !== 'undefined') {
+    const bearer = token.split(' ');
+    const bearerToken = bearer[1];
+    req.token = bearerToken;
+    console.log("token没过期")
+    next();
+  } else {
+    console.log("token已过期")
+    res.sendStatus(403);
+  }
+}
+
 
 
 var server = app.listen(8888, function () {
