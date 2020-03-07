@@ -15,7 +15,7 @@ class Jwt {
         let cert = "YINYUJIA"
         let token = jwt1.sign({
             data,
-            exp: created + 60 * 30, //设置过期时间
+            exp: created + 60 * 1, //设置过期时间
         }, cert );
         return token;
     }

@@ -30,10 +30,15 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+
+
+
 const upload = require('./router/upload.js'); //路由
 app.use('/upload', upload) //路由
 const msgMan = require('./router/msgMan.js'); //路由信息列表
 app.use('/msgMan', msgMan) //路由信息列表
+const person = require('./router/person.js'); //路由信息列表
+app.use('/person', person) //路由信息列表
 
 
 const JwtUtil = require('./jwt');
@@ -60,7 +65,7 @@ app.use(function (req, res, next) {
 })
 // 登录
 var login_id = ""
-app.post('/login', function (req, res) {
+app.post('/login',function (req, res) {
   res.writeHead(200, {
     "Content-Type": "text/html;charset=utf-8"
   })
@@ -78,8 +83,15 @@ app.post('/login', function (req, res) {
       if (req.body.username == results[i].username && req.body.password == results[i].password) {
         temp = results[i].id
         login_id = results[i].id
+        if( results[i].isdisabled == 0 ) { //停用
+          res.end(JSON.stringify({
+            code: 500,
+            msg: "账号已停用"
+          }));
+        }
       }
     }
+    
     console.log("id------",temp)
     let jwt = new JwtUtil(String(temp));
     const token = jwt.generateToken();
@@ -101,7 +113,6 @@ app.post('/login', function (req, res) {
     }
   });
 })
-
 // 列表
 app.post('/list',function (req, res) {
   res.writeHead(200, {
@@ -121,7 +132,6 @@ app.post('/list',function (req, res) {
     if (err) {
       return;
     }
-    console.log("result------",result)
     res.end(JSON.stringify({
       code: "0",
       msg: "添加成功",
