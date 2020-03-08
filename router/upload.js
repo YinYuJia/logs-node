@@ -30,7 +30,6 @@ router.post('/img', upload.single('file'), (req, res) => {
     //2.写入的内容
     //3.回调函数
     fs.writeFile(path.join(__dirname, '../uploads/' + keepname), data, (err) => {
-      console.log("............",__dirname, '../uploads/' + keepname)
       if (err) {
         return res.send('写入失败')
       }
@@ -123,7 +122,6 @@ router.post('/getAllImgList', (req, res) => {
   //var addSqlParams = [req.file.fieldname, req.file.encoding, req.file.originalname, req.file.mimetype, req.file.destination, req.file.filename, req.file.path, req.file.size];
   connection.query(addSql, function (err, result) {
     if (err) throw err;
-    console.log("allList------------",result)
     let temp = []
     for ( var i = 0 ; i < result.length ; i++) {
       temp.push({

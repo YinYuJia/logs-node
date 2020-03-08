@@ -16,7 +16,6 @@ router.post('/personlist',check, (req, res) => {
   //var addSqlParams = [req.file.fieldname, req.file.encoding, req.file.originalname, req.file.mimetype, req.file.destination, req.file.filename, req.file.path, req.file.size];
   connection.query(addSql, function (err, result) {
     if (err) throw err;
-    console.log("personlist------------",result)
     res.send(JSON.stringify({
       code: 0,
       data: result,
@@ -102,7 +101,6 @@ router.post('/personupdate', check,(req, res) => {
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8'
     });
-    console.log(req.body)
     var connection = mysql.createConnection({
       host: 'localhost',
       user: 'root',
@@ -125,7 +123,6 @@ router.post('/personupdate', check,(req, res) => {
 
   function check(req, res, next) {
     const JwtUtil = require('../jwt');
-    console.log("进来了")
     // 我这里知识把登陆和注册请求去掉了，其他的多有请求都需要进行token校验 
     if (req.url != '/login' && req.url != '/register') {
         let token = req.headers.token;
@@ -133,11 +130,9 @@ router.post('/personupdate', check,(req, res) => {
         let result = jwt.verifyToken();
         // 如果考验通过就next，否则就返回登陆信息不正确
         if (result == 'err') {
-            console.log(result);
             res.send({status: 403, msg: '登录已过期,请重新登录'});
             // res.render('login.html');
         } else {
-          console.log("没过期")
             next();
         }
     } else {

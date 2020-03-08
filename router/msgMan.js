@@ -16,7 +16,6 @@ router.post('/getMsgList', (req, res) => {
   //var addSqlParams = [req.file.fieldname, req.file.encoding, req.file.originalname, req.file.mimetype, req.file.destination, req.file.filename, req.file.path, req.file.size];
   connection.query(addSql, function (err, result) {
     if (err) throw err;
-    console.log("allList-----333-------",result)
     res.send(JSON.stringify({
       code: 0,
       data: {

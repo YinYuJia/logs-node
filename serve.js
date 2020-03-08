@@ -44,7 +44,6 @@ app.use('/person', person) //路由信息列表
 const JwtUtil = require('./jwt');
 
 app.use(function (req, res, next) {
-  console.log("进来了")
   // 我这里知识把登陆和注册请求去掉了，其他的多有请求都需要进行token校验 
   if (req.url != '/login' && req.url != '/register') {
       let token = req.headers.token;
@@ -52,11 +51,9 @@ app.use(function (req, res, next) {
       let result = jwt.verifyToken();
       // 如果考验通过就next，否则就返回登陆信息不正确
       if (result == 'err') {
-          console.log(result);
           res.send({status: 403, msg: '登录已过期,请重新登录'});
           // res.render('login.html');
       } else {
-        console.log("没过期")
           next();
       }
   } else {
@@ -91,8 +88,6 @@ app.post('/login',function (req, res) {
         }
       }
     }
-    
-    console.log("id------",temp)
     let jwt = new JwtUtil(String(temp));
     const token = jwt.generateToken();
     if (temp != '') {
@@ -125,7 +120,6 @@ app.post('/list',function (req, res) {
     database: 'mylog'
   });
   connection.connect();
-  console.log(234,login_id)
   var addSql = "select * from logs where login_id =  "  + login_id; 
   var addSqlParams = [req.body.name, req.body.sex, req.body.age, req.body.idcard];
   connection.query(addSql, function (err, result) {
@@ -135,7 +129,7 @@ app.post('/list',function (req, res) {
     res.end(JSON.stringify({
       code: "0",
       msg: "添加成功",
-      data: result,
+      data: result.reverse(),
       total: result.length
     }));
   });
