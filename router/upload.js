@@ -82,8 +82,6 @@ router.post('/getImg', (req, res) => {
       msg: "保存成功"
     }))
   });
-
-
 })
 router.post('/save', (req, res) => {
   var connection = mysql.createConnection({
@@ -135,7 +133,6 @@ router.post('/getAllImgList', (req, res) => {
       msg: "保存成功"
     }))
   });
-
 
 })
 module.exports = router;

@@ -8,16 +8,9 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-const jwt = require('jsonwebtoken'); //生成token
-
-var path = require("path")
 var fs = require("fs");
 
 var areaList = require('./area')
-
-var requestUrl = "192.168.0.104"
-
-// app.use(express.static(path.join(__dirname,"./static")))
 
 app.use('/uploads', express.static('./uploads'));
 
@@ -32,13 +25,18 @@ app.use(bodyParser.urlencoded({
 
 
 
-
+//路由    start
 const upload = require('./router/upload.js'); //路由
 app.use('/upload', upload) //路由
 const msgMan = require('./router/msgMan.js'); //路由信息列表
 app.use('/msgMan', msgMan) //路由信息列表
 const person = require('./router/person.js'); //路由信息列表
 app.use('/person', person) //路由信息列表
+
+const test = require("./router/test.js") //测试路由
+app.use('/test', test) //测试路由
+
+//路由    end
 
 
 const JwtUtil = require('./jwt');
@@ -275,7 +273,7 @@ function verifyToken(req, res, next) {
 
 
 
-var server = app.listen(8888, function () {
+var server = app.listen(9998, function () {
   var host = server.address().address
   var port = server.address().port
   console.log("应用实例，访问地址为 http://%s:%s", host, port)
